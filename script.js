@@ -25,28 +25,25 @@ const game = (function() {
     }
 
     function gameEndCheck() {
-        gameBoardPattern = gameBoard.map(row => row.join('')).join('');
-        const player1WinPatterns = [
-            player1Token + player1Token + player1Token,
-            player1Token + ' ' + ' ' + player1Token + ' ' + ' ' + player1Token
+
+        const winPatterns = [
+            gameBoard[0][0] + gameBoard[0][1] + gameBoard[0][2],
+            gameBoard[1][0] + gameBoard[1][1] + gameBoard[1][2],
+            gameBoard[2][0] + gameBoard[2][1] + gameBoard[2][2],
+            gameBoard[0][0] + gameBoard[1][0] + gameBoard[2][0],
+            gameBoard[0][1] + gameBoard[1][1] + gameBoard[2][1],
+            gameBoard[0][2] + gameBoard[1][2] + gameBoard[2][2],
+            gameBoard[0][0] + gameBoard[1][1] + gameBoard[2][2],
+            gameBoard[0][2] + gameBoard[1][1] + gameBoard[2][0]
         ]
-        const player2WinPatterns = [
-            player2Token + player2Token + player2Token,
-            player2Token + ' ' + ' ' + player2Token + ' ' + ' ' + player2Token
-        ]
-        const diagPattern1 = gameBoard[0][0] + gameBoard[1][1] + gameBoard[2][2];
-        const diagPattern2 = gameBoard[0][2] + gameBoard[1][1] + gameBoard[2][0];
 
         let endMessage = null;
-
-        player1WinPatterns.forEach(pattern => {
-            if(gameBoardPattern.includes(pattern) || pattern === diagPattern1 || pattern === diagPattern2){
+        winPatterns.forEach(combination => {
+            if(combination === 'XXX'){
                 endMessage =  'Player 1 Wins!'
                 resetGameBoard();
             }
-        });
-        player2WinPatterns.forEach(pattern => {
-            if(gameBoardPattern.includes(pattern) || pattern === diagPattern1 || pattern === diagPattern2){
+            else if(combination === 'OOO'){
                 endMessage =  'Player 2 Wins!'
                 resetGameBoard();
             }
