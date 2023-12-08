@@ -8,6 +8,24 @@
     <title>Tic Tac Toe</title>
 </head>
 <body>
+    <dialog id="player-input-dialog">
+        <h1>Enter your names</h1>
+        <form method="dialog">
+            <div class="player-input">
+                <label for="player-1-name">Player 1:</label>
+                <input type="text" name="player-1-name" id="player-1-name">
+            </div>
+            <div class="player-input">
+                <label for="player-2-name">Player 2:</label>
+                <input type="text" name="player-2-name" id="player-2-name">
+            </div>
+            <button type="submit">SUBMIT</button>
+        </form>
+    </dialog>
+    <div id="header">
+        <h1 id="player-1"></h1>
+        <h1 id="player-2"></h1>
+    </div>
     <div id="game-board">
         <button class="game-space"></button>
         <button class="game-space"></button>
@@ -19,5 +37,13 @@
         <button class="game-space"></button>
         <button class="game-space"></button>
     </div>
+    <div id="footer">
+        <button id="reset-players-button">Reset Players</button>
+        <button id="reset-game-button">Reset Game</button>
+    </div>
+    <dialog id="game-end-dialog">
+        <h1 id="end-message"></h1>
+        <button id="close-button">CLOSE</button>
+    </dialog>
 </body>
 </html>
