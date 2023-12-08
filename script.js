@@ -11,16 +11,18 @@ const game = (function() {
     function player1Move(boardRow, boardColumn) {
         if(gameBoard[boardRow][boardColumn] === ' '){
             gameBoard[boardRow][boardColumn] = player1Token;
+            domEvents.updateGameBoard();
             gameEndCheck();
-            console.log(game.gameBoard);
+            gameFlow.advanceTurn();
         }
     }
 
     function player2Move(boardRow, boardColumn) {
         if(gameBoard[boardRow][boardColumn] === ' '){
             gameBoard[boardRow][boardColumn] = player2Token;
+            domEvents.updateGameBoard();
             gameEndCheck();
-            console.log(game.gameBoard);
+            gameFlow.advanceTurn();
         }
     }
 
@@ -42,10 +44,12 @@ const game = (function() {
             if(combination === 'XXX'){
                 endMessage =  'Player 1 Wins!'
                 resetGameBoard();
+                domEvents.updateGameBoard();
             }
             else if(combination === 'OOO'){
                 endMessage =  'Player 2 Wins!'
                 resetGameBoard();
+                domEvents.updateGameBoard();
             }
         });
         console.log(endMessage);
@@ -60,11 +64,64 @@ const game = (function() {
     }
 
     return {
-        gameBoard:gameBoard,
-        player1Move:player1Move,
-        player2Move:player2Move,
+        gameBoard: gameBoard,
+        player1Move: player1Move,
+        player2Move: player2Move,
     };
     
 })();
 
-console.log(game.gameBoard);
+const gameFlow = (function() {
+    let turn = 1;
+    function advanceTurn() {
+        turn++;
+    }
+
+    function determineTurn(row, index) {
+        if(turn % 2 != 0){
+            game.player1Move(row, index);
+        }
+        else if(turn % 2 === 0){
+            game.player2Move(row, index);
+        }
+    }
+
+    return {
+        turn: turn,
+        advanceTurn: advanceTurn,
+        determineTurn: determineTurn
+    }
+})();
+
+const domEvents = (function() {
+
+    //cache DOM
+    const gameBoard = document.querySelector('#game-board');
+    const gameSpaces = gameBoard.querySelectorAll('.game-space');
+
+    //Event Listeners
+    gameSpaces.forEach(gameSpace => {
+        gameSpace.addEventListener('click', () => {
+            const gameSpaceArray = Array.from(gameSpace.parentNode.children);
+            const index = gameSpaceArray.indexOf(gameSpace);
+            const count = 3;
+            const rowIndex = Math.floor(index / count);
+            const colIndex = index % count;
+            gameFlow.determineTurn(rowIndex, colIndex)
+        })
+    })
+
+    function updateGameBoard() {
+        const gameBoardFlat = game.gameBoard.flat();
+        let index = 0;
+        gameSpaces.forEach(gameSpace => {
+            gameSpace.textContent = gameBoardFlat[index];
+            index++;
+        })
+    }
+
+    return {
+        updateGameBoard: updateGameBoard
+    }
+
+})();
