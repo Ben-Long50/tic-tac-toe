@@ -12,7 +12,7 @@ const game = (function() {
         if(gameBoard[boardRow][boardColumn] === ''){
             gameBoard[boardRow][boardColumn] = player1Token;
             domEvents.updateGameBoard();
-            gameEndCheck();
+            gameEndCheck(domEvents.getPlayer1Value(), domEvents.getPlayer2Value());
             gameFlow.advanceTurn();
         }
     }
@@ -21,13 +21,14 @@ const game = (function() {
         if(gameBoard[boardRow][boardColumn] === ''){
             gameBoard[boardRow][boardColumn] = player2Token;
             domEvents.updateGameBoard();
-            gameEndCheck();
+            gameEndCheck(domEvents.getPlayer1Value(), domEvents.getPlayer2Value());
             gameFlow.advanceTurn();
         }
     }
 
-    function gameEndCheck() {
-
+    function gameEndCheck(player1Name, player2Name) {
+        console.log(player1Name);
+        console.log(player2Name);
         const winPatterns = [
             gameBoard[0][0] + gameBoard[0][1] + gameBoard[0][2],
             gameBoard[1][0] + gameBoard[1][1] + gameBoard[1][2],
@@ -42,10 +43,10 @@ const game = (function() {
         let endMessage = null;
         winPatterns.forEach(combination => {
             if(combination === 'XXX'){
-                endMessage =  'Player 1 Wins!';
+                endMessage =  `${player1Name} Wins!`;
             }
             else if(combination === 'OOO'){
-                endMessage =  'Player 2 Wins!';
+                endMessage =  `${player2Name} Wins!`;
             }
         });
 
@@ -56,7 +57,6 @@ const game = (function() {
 
         if(endMessage) {
             domEvents.showGameEndDialog(endMessage);
-            resetGameBoard();
             domEvents.updateGameBoard();
             gameFlow.turn = 1;
         }
@@ -74,6 +74,8 @@ const game = (function() {
 
     return {
         gameBoard: gameBoard,
+        player1Token: player1Token,
+        player2Token: player2Token,
         player1Move: player1Move,
         player2Move: player2Move,
         resetGameBoard: resetGameBoard
@@ -85,6 +87,8 @@ const gameFlow = (function() {
     let turn = 1;
     function advanceTurn() {
         turn++;
+        console.log(turn);
+        domEvents.updateTurn(turn);
     }
 
     function determineTurn(row, index) {
@@ -96,10 +100,15 @@ const gameFlow = (function() {
         }
     }
 
+    function resetTurn() {
+        turn = 1;
+    }
+
     return {
         turn: turn,
         advanceTurn: advanceTurn,
-        determineTurn: determineTurn
+        determineTurn: determineTurn,
+        resetTurn: resetTurn
     }
 })();
 
@@ -112,6 +121,7 @@ const domEvents = (function() {
     const submitButton = playerForm.querySelector('button');
     const player1 = document.querySelector('#player-1');
     const player2 = document.querySelector('#player-2');
+    const turnCounter = document.querySelector('#turn-counter');
     const gameEndDialog = document.querySelector('dialog#game-end-dialog');
     const endMessage = document.querySelector('#end-message');
     const closeButton = document.querySelector('#close-button');
@@ -119,6 +129,8 @@ const domEvents = (function() {
     const resetGameButton = document.querySelector('#reset-game-button');
     const player1Input = document.querySelector('#player-1-name');
     const player2Input = document.querySelector('#player-2-name');
+    let player1Value = '';
+    let player2Value = '';
     
     //Event Listeners
     gameSpaces.forEach(gameSpace => {
@@ -132,26 +144,41 @@ const domEvents = (function() {
         })
     })
 
-    submitButton.addEventListener('click', updatePlayerNames)
+    submitButton.addEventListener('click', () => {
+        updatePlayerNames();
+        updateTurn(gameFlow.turn);
+    })
 
     resetPlayersButton.addEventListener('click', showPlayerForm)
 
     resetGameButton.addEventListener('click', () => {
         game.resetGameBoard();
         updateGameBoard();
-        gameFlow.turn = 1;
+        gameFlow.resetTurn();
+        updateTurn(gameFlow.turn);
     })
 
     closeButton.addEventListener('click', () => {
+        game.resetGameBoard();
         player1Input.value = '';
         player2Input.value = '';
-        gameEndDialog.close();
+        gameEndDialog.close(); 
     })
 
     //DOM Functions
+    function getPlayer1Value() {
+        return player1Value;
+    }
+
+    function getPlayer2Value() {
+        return player2Value;
+    }
+
     function updatePlayerNames() {
-        player1.textContent = player1Input.value;
-        player2.textContent = player2Input.value;
+        player1Value = player1Input.value;
+        player2Value = player2Input.value;
+        player1.textContent = player1Value + `: ${game.player1Token}`;
+        player2.textContent = player2Value + `: ${game.player2Token}`;
     }
 
     function updateGameBoard() {
@@ -161,6 +188,10 @@ const domEvents = (function() {
             gameSpace.textContent = gameBoardFlat[index];
             index++;
         })
+    }
+
+    function updateTurn(num) {
+        turnCounter.textContent = `Turn: ${num}`;
     }
 
     function showPlayerForm() {
@@ -175,10 +206,12 @@ const domEvents = (function() {
 
     return {
         updateGameBoard: updateGameBoard,
+        updateTurn: updateTurn,
         showPlayerForm: showPlayerForm,
-        showGameEndDialog: showGameEndDialog
+        showGameEndDialog: showGameEndDialog,
+        getPlayer1Value: getPlayer1Value,
+        getPlayer2Value: getPlayer2Value
     }
-
 })();
 
 domEvents.showPlayerForm();
